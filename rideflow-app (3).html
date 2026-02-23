@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RideFlow — Your Ride Companion</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gd:#3a5a3a;--gm:#5a7a4a;--gl:#8aaa6a;--gp:#c8dba8;--gbg:#e8f0d8;
+  --cream:#f7f3ec;--sky:#c5d8e8;--cloud:#edf4f8;--amb:#c8762a;--ambl:#e8a84a;
+  --red:#c0392b;--wh:#fdfcfb;--tx:#2a3a2a;--mu:#7a8a7a;
+  --bdr:rgba(90,122,74,0.18);--sh:0 4px 24px rgba(58,90,58,0.10);
+}
+body{font-family:'Nunito',sans-serif;background:var(--gbg);color:var(--tx);min-height:100vh}
+.app{display:flex;min-height:100vh}
+.sb{width:230px;flex-shrink:0;background:var(--gd);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:50}
+.main{margin-left:230px;flex:1;min-height:100vh}
+.sb-logo{padding:22px 20px 16px;border-bottom:1px solid rgba(255,255,255,0.08)}
+.sb-logo-txt{font-family:'DM Serif Display',serif;font-style:italic;font-size:1.7rem;color:var(--gp)}
+.sb-logo-sub{font-size:0.55rem;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.28);margin-top:2px}
+.nv-sec{padding:12px 10px 6px}
+.nv-lbl{font-size:0.55rem;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.22);padding:0 10px;margin-bottom:4px}
+.nv{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;transition:all .18s;color:rgba(255,255,255,0.45);font-size:0.85rem;font-weight:700;margin-bottom:2px;border:none;background:none;width:100%;text-align:left}
+.nv:hover{background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.8)}
+.nv.active{background:rgba(200,219,168,0.15);color:var(--gp)}
+.nv-ic{font-size:1rem;width:20px;text-align:center}
+.sb-sos{margin:auto 14px 18px;background:var(--red);border-radius:12px;padding:12px 14px;cursor:pointer;border:none;width:calc(100% - 28px);transition:background .2s;text-align:left}
+.sb-sos:hover{background:#a93226}
+.sos-lbl{font-size:0.6rem;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.65)}
+.sos-txt{font-family:'DM Serif Display',serif;font-size:1.1rem;color:white}
+.tb{background:rgba(247,243,236,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--bdr);padding:14px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40}
+.tb-title{font-family:'DM Serif Display',serif;font-style:italic;font-size:1.5rem;color:var(--gd)}
+.tb-right{display:flex;align-items:center;gap:10px}
+.content{padding:24px 28px}
+.page{display:none}.page.active{display:block}
+.card{background:var(--wh);border-radius:20px;padding:22px;border:1.5px solid var(--bdr);box-shadow:var(--sh);margin-bottom:18px}
+.ct{font-family:'DM Serif Display',serif;font-size:1.05rem;color:var(--gd);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.sg{display:grid;gap:14px;margin-bottom:18px}
+.sg4{grid-template-columns:repeat(4,1fr)}.sg3{grid-template-columns:repeat(3,1fr)}.sg5{grid-template-columns:repeat(5,1fr)}
+.sc{background:var(--wh);border-radius:16px;padding:16px 14px;border:1.5px solid var(--bdr);box-shadow:var(--sh);text-align:center}
+.sn{font-family:'DM Serif Display',serif;font-size:1.8rem;color:var(--gd);line-height:1}
+.su{font-size:0.6rem;color:var(--amb);font-weight:800;letter-spacing:1px}
+.slb{font-size:0.62rem;color:var(--mu);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-top:4px}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fg1{grid-column:1/-1}
+.fl{font-size:0.7rem;font-weight:800;color:var(--mu);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:5px}
+input,select,textarea{background:var(--gbg);border:1.5px solid var(--bdr);border-radius:10px;padding:10px 13px;font-family:'Nunito',sans-serif;font-size:0.88rem;color:var(--tx);outline:none;transition:border-color .2s;width:100%}
+input:focus,select:focus,textarea:focus{border-color:var(--gm);background:white}
+textarea{resize:vertical;min-height:70px}
+.btn{padding:11px 22px;border-radius:10px;border:none;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:800;font-size:0.85rem;transition:all .18s}
+.bp{background:var(--gd);color:var(--cream)}.bp:hover{background:var(--gm);transform:translateY(-1px)}
+.bs{background:var(--gbg);color:var(--gd);border:1.5px solid var(--bdr)}.bs:hover{background:var(--gp)}
+.bd{background:#fdecea;color:var(--red);border:1.5px solid #f5c6c2}.bd:hover{background:#f5c6c2}
+.bsm{padding:7px 13px;font-size:0.73rem;border-radius:8px}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:99px;font-size:0.63rem;font-weight:800;letter-spacing:0.5px}
+.bgn{background:#e8f5e8;color:var(--gm)}.bam{background:#fff3e0;color:var(--amb)}.brd{background:#fdecea;color:var(--red)}.bsk{background:var(--cloud);color:#4a7a9a}.bnn{background:#f0f0f0;color:var(--mu)}
+.rl{display:flex;flex-direction:column;gap:10px}
+.ri{display:flex;align-items:center;gap:13px;padding:13px 16px;background:var(--gbg);border-radius:13px;border:1.5px solid var(--bdr);transition:box-shadow .15s}
+.ri:hover{box-shadow:0 4px 16px rgba(58,90,58,0.1)}
+.ric{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:1.15rem;flex-shrink:0}
+.rin{flex:1}.rit{font-weight:800;font-size:0.88rem;color:var(--tx)}.ris{font-size:0.7rem;color:var(--mu);margin-top:2px}
+.rir{text-align:right}.riv{font-family:'DM Serif Display',serif;font-size:1.05rem;color:var(--gd)}.rid{font-size:0.63rem;color:var(--mu);font-weight:700}
+.pw{margin-top:10px}.pla{display:flex;justify-content:space-between;font-size:0.7rem;font-weight:700;color:var(--mu);margin-bottom:5px}
+.pt{height:8px;background:var(--gbg);border-radius:99px;overflow:hidden}
+.pf{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--gm),var(--gl));transition:width .6s}
+.pfw{background:linear-gradient(90deg,var(--amb),var(--ambl))}.pfd{background:linear-gradient(90deg,#e74c3c,#c0392b)}
+.tabs{display:flex;gap:4px;background:var(--gbg);border-radius:12px;padding:4px;margin-bottom:18px}
+.tab{flex:1;padding:8px;border-radius:8px;border:none;background:none;font-family:'Nunito',sans-serif;font-weight:700;font-size:0.78rem;cursor:pointer;color:var(--mu);transition:all .18s}
+.tab.active{background:var(--wh);color:var(--gd);box-shadow:0 2px 8px rgba(0,0,0,0.08)}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--gd);color:var(--cream);padding:13px 20px;border-radius:13px;font-size:0.83rem;font-weight:700;z-index:300;transform:translateY(80px);opacity:0;transition:all .3s;box-shadow:0 8px 24px rgba(0,0,0,0.2)}
+.toast.show{transform:translateY(0);opacity:1}
+.mo{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;display:none;align-items:center;justify-content:center;padding:20px}
+.mo.show{display:flex}
+.md{background:var(--wh);border-radius:22px;padding:28px;max-width:440px;width:100%;box-shadow:0 32px 80px rgba(0,0,0,0.2);max-height:90vh;overflow-y:auto}
+.md-title{font-family:'DM Serif Display',serif;font-size:1.4rem;color:var(--gd);margin-bottom:8px}
+.map-wrap{border-radius:16px;overflow:hidden;border:1.5px solid var(--bdr);background:#1a2a3a;position:relative}
+canvas{display:block;width:100%}
+.mov{position:absolute;top:10px;left:10px;display:flex;flex-direction:column;gap:6px}
+.movr{position:absolute;top:10px;right:10px;display:flex;flex-direction:column;gap:6px}
+.mbdg{background:rgba(10,20,30,0.8);backdrop-filter:blur(8px);color:white;font-size:0.63rem;font-weight:800;letter-spacing:1px;padding:5px 10px;border-radius:8px}
+.mbtn{background:rgba(10,20,30,0.8);backdrop-filter:blur(8px);color:white;font-size:0.7rem;font-weight:800;padding:7px 13px;border-radius:8px;border:none;cursor:pointer}
+.mbtn:hover{background:rgba(58,90,58,0.9)}
+.live-g{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.gauge{background:var(--wh);border-radius:16px;padding:18px 14px;border:1.5px solid var(--bdr);text-align:center;box-shadow:var(--sh)}
+.gauge.hi{border-color:var(--amb);background:linear-gradient(135deg,#fff,#fff7ed)}
+.gv{font-family:'DM Serif Display',serif;font-size:2.2rem;color:var(--gd);line-height:1}
+.gauge.hi .gv{color:var(--amb)}
+.gu{font-size:0.6rem;color:var(--mu);font-weight:800;letter-spacing:1px}
+.gl2{font-size:0.62rem;color:var(--mu);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-top:4px}
+.start-btn{background:linear-gradient(135deg,var(--gm),var(--gd));color:white;border:none;border-radius:16px;padding:18px 36px;font-family:'DM Serif Display',serif;font-style:italic;font-size:1.5rem;cursor:pointer;transition:all .2s;box-shadow:0 6px 24px rgba(58,90,58,0.3);width:100%;margin-bottom:16px}
+.start-btn:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(58,90,58,0.4)}
+.start-btn.stopping{background:linear-gradient(135deg,#c0392b,#96281b)}
+.fc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.fc-card{background:var(--gbg);border-radius:14px;padding:14px;border:1.5px solid var(--bdr);text-align:center;position:relative;transition:box-shadow .15s}
+.fc-card:hover{box-shadow:0 4px 16px rgba(58,90,58,0.1)}
+.fc-av{width:44px;height:44px;border-radius:50%;background:var(--gp);display:flex;align-items:center;justify-content:center;font-size:1.3rem;margin:0 auto 8px;border:2px solid white}
+.fc-nm{font-weight:800;font-size:0.82rem;color:var(--tx)}.fc-st{font-size:0.65rem;color:var(--mu);font-weight:600;margin-top:2px}
+.fc-dot{width:8px;height:8px;border-radius:50%;position:absolute;top:10px;right:10px}
+.fc-dot.online{background:#22c55e}.fc-dot.offline{background:var(--mu)}.fc-dot.riding{background:var(--amb);animation:pulse 1.5s ease infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.8)}}
+.lb-wrap{background:linear-gradient(135deg,#c4a070,#d8b880);border-radius:20px;padding:24px;margin-bottom:18px;text-align:center;position:relative;overflow:hidden}
+.lb-wrap::before{content:'';position:absolute;top:-40px;right:-40px;width:200px;height:200px;background:radial-gradient(ellipse,rgba(255,255,255,0.2),transparent 70%);border-radius:50%}
+.lb-pod{display:flex;justify-content:center;align-items:flex-end;gap:12px;margin-top:16px}
+.pod-item{text-align:center}
+.pod-av{width:48px;height:48px;border-radius:50%;margin:0 auto 6px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;border:2.5px solid rgba(255,255,255,0.6);background:rgba(255,255,255,0.3)}
+.pod-blk{border-radius:10px 10px 0 0;display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:1.3rem;color:white}
+.p1{width:60px;height:68px;background:var(--gd)}.p2{width:52px;height:52px;background:#8a7060}.p3{width:52px;height:42px;background:var(--amb)}
+.pod-nm{font-size:0.6rem;font-weight:800;color:rgba(255,255,255,0.8);margin-top:3px}
+.lb-list{background:var(--wh);border-radius:16px;padding:4px}
+.lb-entry{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:12px;transition:background .15s}
+.lb-entry:hover{background:var(--gbg)}.lb-entry.me{background:rgba(58,90,58,0.07);border:1.5px solid rgba(58,90,58,0.12)}
+.lb-rk{font-family:'DM Serif Display',serif;font-size:1rem;color:var(--mu);width:28px}
+.lb-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
+.lb-inf{flex:1}.lb-nm{font-size:0.88rem;font-weight:800;color:var(--tx)}.lb-pt{font-size:0.68rem;color:var(--amb);font-weight:700}
+.lb-dl{font-size:0.63rem;font-weight:800;padding:3px 8px;border-radius:6px}
+.lb-dl.up{color:#4a8a4a;background:#e8f5e8}.lb-dl.dn{color:var(--red);background:#fdecea}
+.bk-hdr{background:linear-gradient(135deg,var(--gd),var(--gm));border-radius:20px;padding:24px;margin-bottom:18px;position:relative;overflow:hidden;color:var(--cream)}
+.bk-hdr::before{content:'🏍️';position:absolute;right:20px;top:50%;transform:translateY(-50%);font-size:5rem;opacity:0.15}
+.doc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px}
+.doc-card{border-radius:16px;padding:18px;border:2px solid;transition:transform .15s;cursor:default}
+.doc-card:hover{transform:translateY(-2px)}
+.doc-ok{background:#e8f5e8;border-color:#aed4ae}.doc-warn{background:#fff3cd;border-color:#f5c842}.doc-exp{background:#fdecea;border-color:#f5a0a0}.doc-none{background:var(--gbg);border-color:var(--bdr)}
+.empty{text-align:center;padding:40px 20px;color:var(--mu)}
+.ei{font-size:2.2rem;display:block;margin-bottom:10px}
+.et{font-family:'DM Serif Display',serif;font-style:italic;font-size:1.05rem;color:var(--gm)}.es{font-size:0.78rem;margin-top:5px}
+.sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.st2{font-family:'DM Serif Display',serif;font-size:1.1rem;color:var(--gd)}
+.info-box{border-radius:12px;padding:12px 16px;margin-bottom:14px;display:flex;gap:10px;align-items:flex-start;font-size:0.78rem;font-weight:600;line-height:1.5}
+.info-sky{background:var(--cloud);border:1px solid rgba(197,216,232,0.6);color:#3a5a7a}
+.info-warn{background:#fff3cd;border:1px solid #f5c842;color:#856404}
+.info-red{background:#fdecea;border:1px solid #f5c6c2;color:#7a2020}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:var(--gp);border-radius:99px}
+@media(max-width:768px){.sb{display:none}.main{margin-left:0}.sg4,.sg5{grid-template-columns:1fr 1fr}.fg{grid-template-columns:1fr}.live-g{grid-template-columns:1fr 1fr}.fc-grid{grid-template-columns:1fr 1fr}.doc-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sb">
+  <div class="sb-logo"><div class="sb-logo-txt">RideFlow</div><div class="sb-logo-sub">Core Moto Studio · SG</div></div>
+  <div class="nv-sec">
+    <div class="nv-lbl">Ride</div>
+    <button class="nv active" onclick="go('dashboard')"><span class="nv-ic">🏠</span>Dashboard</button>
+    <button class="nv" onclick="go('ride')"><span class="nv-ic">🟢</span>Live Ride</button>
+    <button class="nv" onclick="go('friends')"><span class="nv-ic">👥</span>Friends & Map</button>
+    <button class="nv" onclick="go('leaderboard')"><span class="nv-ic">🏆</span>Leaderboard</button>
+  </div>
+  <div class="nv-sec">
+    <div class="nv-lbl">My Bike</div>
+    <button class="nv" onclick="go('mybike')"><span class="nv-ic">🏍️</span>My Bike</button>
+    <button class="nv" onclick="go('mileage')"><span class="nv-ic">⛽</span>Mileage & Fuel</button>
+    <button class="nv" onclick="go('service')"><span class="nv-ic">🔧</span>Service Record</button>
+    <button class="nv" onclick="go('journal')"><span class="nv-ic">📖</span>Ride Journal</button>
+  </div>
+  <div class="nv-sec">
+    <div class="nv-lbl">Tools</div>
+    <button class="nv" onclick="go('weather')"><span class="nv-ic">🌧️</span>Live Weather SG</button>
+    <button class="nv" onclick="go('gear')"><span class="nv-ic">🪖</span>Gear Checklist</button>
+    <button class="nv" onclick="go('sos')"><span class="nv-ic">🆘</span>Emergency SOS</button>
+  </div>
+  <button class="sb-sos" onclick="openSOS()"><div class="sos-lbl">Emergency</div><div class="sos-txt">🆘 SOS Alert</div></button>
+</aside>
+
+<main class="main">
+<div class="tb">
+  <div class="tb-title" id="tb-title">Dashboard</div>
+  <div class="tb-right">
+    <span id="ride-ind" style="display:none" class="badge bam">🟢 RIDE ACTIVE</span>
+    <button class="btn bs bsm" onclick="go('weather')">⛅ Weather SG</button>
+    <button class="btn bsm" style="background:var(--red);color:white" onclick="openSOS()">🆘 SOS</button>
+  </div>
+</div>
+<div class="content">
+
+<!-- DASHBOARD -->
+<div class="page active" id="page-dashboard">
+  <div class="sg sg4">
+    <div class="sc"><div class="sn" id="ds-km">0</div><div class="su">km</div><div class="slb">Total Distance</div></div>
+    <div class="sc"><div class="sn" id="ds-rides">0</div><div class="su">rides</div><div class="slb">Total Rides</div></div>
+    <div class="sc"><div class="sn" id="ds-spd">0</div><div class="su">km/h</div><div class="slb">Top Speed Ever</div></div>
+    <div class="sc"><div class="sn" id="ds-fuel">0</div><div class="su">RM</div><div class="slb">Fuel Spent</div></div>
+  </div>
+  <div id="ds-alerts"></div>
+  <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:18px">
+    <div>
+      <div class="card"><div class="ct">🟢 Quick Start</div>
+        <button class="start-btn" onclick="go('ride')">🏍️ Start a New Ride</button>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <button class="btn bs" onclick="go('mileage')">⛽ Log Fuel</button>
+          <button class="btn bs" onclick="go('service')">🔧 Log Service</button>
+          <button class="btn bs" onclick="go('journal')">📖 Write Journal</button>
+          <button class="btn bs" onclick="go('mybike')">🏍️ My Bike Docs</button>
+        </div>
+      </div>
+      <div class="card"><div class="sh"><div class="st2">📖 Last Ride Journal</div></div><div id="ds-lastj"></div></div>
+    </div>
+    <div>
+      <div class="card"><div class="ct">🏍️ Bike Status</div><div id="ds-bike"></div></div>
+      <div class="card"><div class="ct">🏆 My Ranking</div><div id="ds-rank"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- LIVE RIDE -->
+<div class="page" id="page-ride">
+  <div style="background:linear-gradient(135deg,var(--gd),var(--gm));border-radius:20px;padding:22px;margin-bottom:18px;color:white;position:relative;overflow:hidden">
+    <div style="position:relative;z-index:1">
+      <div style="font-size:0.65rem;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-bottom:8px" id="ride-status-lbl">Ready to Ride</div>
+      <button class="start-btn" id="ride-btn" onclick="toggleRide()" style="margin:0;width:auto;padding:14px 36px;font-size:1.2rem">🏍️ Start Ride</button>
+      <div style="margin-top:12px;font-size:0.72rem;color:rgba(255,255,255,0.4);font-weight:600">GPS tracks route, speed, distance, elevation · Auto-saves to journal when stopped</div>
+    </div>
+  </div>
+  <div class="live-g">
+    <div class="gauge hi"><div class="gv" id="g-spd">0</div><div class="gu">km/h</div><div class="gl2">Current Speed</div></div>
+    <div class="gauge"><div class="gv" id="g-top">0</div><div class="gu">km/h ≈</div><div class="gl2">Top Speed (GPS)</div></div>
+    <div class="gauge"><div class="gv" id="g-dist">0.0</div><div class="gu">km</div><div class="gl2">Distance</div></div>
+    <div class="gauge"><div class="gv" id="g-time">0:00</div><div class="gu">h:mm</div><div class="gl2">Duration</div></div>
+    <div class="gauge"><div class="gv" id="g-avg">0</div><div class="gu">km/h</div><div class="gl2">Avg Speed</div></div>
+    <div class="gauge"><div class="gv" id="g-elev">0</div><div class="gu">m</div><div class="gl2">Elevation</div></div>
+    <div class="gauge"><div class="gv" id="g-head">—</div><div class="gu">dir</div><div class="gl2">Heading</div></div>
+    <div class="gauge"><div class="gv" id="g-acc">±?</div><div class="gu">m</div><div class="gl2">GPS Accuracy</div></div>
+  </div>
+  <div class="card" style="padding:0;overflow:hidden">
+    <div style="padding:14px 18px 10px;display:flex;align-items:center;justify-content:space-between">
+      <div class="ct" style="margin:0">🗺️ Live Route Map</div>
+      <div style="display:flex;gap:8px">
+        <button class="btn bs bsm" onclick="clearTrack()">🗑 Clear Track</button>
+      </div>
+    </div>
+    <div class="map-wrap">
+      <canvas id="rideMap" width="700" height="360" style="height:360px"></canvas>
+      <div class="mov">
+        <div class="mbdg" id="rm-loc">📍 Waiting for GPS...</div>
+        <div class="mbdg" id="rm-pts">Track: 0 pts</div>
+      </div>
+      <div class="movr"><div class="mbdg" id="rm-stat" style="background:rgba(58,90,58,0.85)">⏸ Stopped</div></div>
+    </div>
+  </div>
+  <div class="info-box info-warn">
+    <span>⚠️</span>
+    <div><strong>Safety Notice:</strong> GPS speed is approximate (±5–10% error). Never interact with this app while moving. Mount your phone safely and only glance when stationary. Always obey speed limits.</div>
+  </div>
+  <div class="card" id="save-card" style="display:none">
+    <div class="ct">💾 Save This Ride</div>
+    <div class="fg">
+      <div><label class="fl">Ride Title</label><input type="text" id="r-title" placeholder="e.g. Sunday Loop"></div>
+      <div><label class="fl">Mood</label><select id="r-mood"><option>🔥 Epic</option><option>😊 Good</option><option>😐 Okay</option><option>😤 Rough</option></select></div>
+      <div class="fg1"><label class="fl">Notes</label><textarea id="r-notes" placeholder="How was the ride?"></textarea></div>
+      <div class="fg1"><button class="btn bp" onclick="saveRide()">💾 Save to Journal & Leaderboard</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- FRIENDS -->
+<div class="page" id="page-friends">
+  <div class="info-box info-red">
+    <span>🔒</span>
+    <div><strong>Privacy:</strong> Location sharing is opt-in only. Your position is only visible to approved friends. Auto-stops when your ride ends. Turn off anytime.</div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px">
+    <div class="card">
+      <div class="ct">📡 My Location Sharing</div>
+      <div style="display:flex;align-items:center;gap:14px;padding:14px;background:var(--gbg);border-radius:13px;border:1.5px solid var(--bdr);margin-bottom:10px">
+        <div style="flex:1"><div style="font-weight:800;font-size:0.88rem">Share my location</div><div style="font-size:0.72rem;color:var(--mu);margin-top:2px" id="loc-sub">Visible to your friends only</div></div>
+        <label style="position:relative;display:inline-block;width:48px;height:26px;cursor:pointer">
+          <input type="checkbox" id="loc-toggle" style="opacity:0;width:0;height:0" onchange="toggleLoc()">
+          <span id="loc-sl" style="position:absolute;inset:0;background:#ccc;border-radius:26px;transition:.3s"><span id="loc-kn" style="position:absolute;width:20px;height:20px;left:3px;top:3px;background:white;border-radius:50%;transition:.3s;display:block"></span></span>
+        </label>
+      </div>
+      <div id="my-loc" style="font-size:0.75rem;color:var(--mu)">Enable to share live location with friends</div>
+    </div>
+    <div class="card">
+      <div class="ct">➕ Add Friend</div>
+      <div style="display:flex;gap:8px;margin-bottom:10px">
+        <input type="text" id="fr-name" placeholder="Friend name or RideFlow code" style="flex:1">
+        <button class="btn bp bsm" onclick="addFriend()">Add</button>
+      </div>
+      <div style="font-size:0.72rem;color:var(--mu)">Your code: <strong style="color:var(--gd);letter-spacing:2px" id="my-code"></strong> <button class="btn bs bsm" onclick="copyCode()" style="padding:4px 10px;font-size:0.65rem">Copy</button></div>
+    </div>
+  </div>
+  <div class="card" style="padding:0;overflow:hidden;margin-bottom:18px">
+    <div style="padding:14px 18px 10px;display:flex;align-items:center;justify-content:space-between">
+      <div class="ct" style="margin:0">🗺️ Friends Live Map — Singapore</div>
+      <span class="badge bgn" id="fr-online">0 riding now</span>
+    </div>
+    <div class="map-wrap">
+      <canvas id="friendMap" width="700" height="380" style="height:380px"></canvas>
+      <div class="mov"><div class="mbdg">Live · Updates every 30s</div></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="sh"><div class="st2">👥 My Riding Crew</div><button class="btn bs bsm" onclick="renderFriends()">🔄 Refresh</button></div>
+    <div class="fc-grid" id="fr-grid"></div>
+  </div>
+</div>
+
+<!-- LEADERBOARD -->
+<div class="page" id="page-leaderboard">
+  <div class="info-box info-sky">
+    <span>ℹ️</span>
+    <div>Compete across 8 stats with your private riding crew. Season resets every 3 months. Speed leaderboard is opt-in to discourage dangerous riding.</div>
+  </div>
+  <div class="tabs" id="lb-tabs">
+    <button class="tab active" onclick="lbTab('distance',this)">🛣️ Distance</button>
+    <button class="tab" onclick="lbTab('topspeed',this)">⚡ Top Speed</button>
+    <button class="tab" onclick="lbTab('rides',this)">🔢 Ride Count</button>
+    <button class="tab" onclick="lbTab('elevation',this)">⛰️ Elevation</button>
+    <button class="tab" onclick="lbTab('duration',this)">⏱️ Time</button>
+    <button class="tab" onclick="lbTab('avgspeed',this)">📈 Avg Speed</button>
+    <button class="tab" onclick="lbTab('fuel',this)">⛽ Fuel Cost</button>
+    <button class="tab" onclick="lbTab('streak',this)">🔥 Streak</button>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+    <div>
+      <div class="lb-wrap">
+        <div style="font-family:'DM Serif Display',serif;font-size:1.2rem;color:rgba(255,255,255,0.9)" id="lb-cat-title">Distance Leaderboard</div>
+        <div class="lb-pod" id="lb-pod"></div>
+      </div>
+      <div class="lb-list" id="lb-list"></div>
+    </div>
+    <div>
+      <div class="card">
+        <div class="ct">📊 My Season Stats</div>
+        <div class="sg sg3" style="margin-bottom:12px">
+          <div class="sc"><div class="sn" id="my-km">0</div><div class="su">km</div><div class="slb">Distance</div></div>
+          <div class="sc"><div class="sn" id="my-spd">0</div><div class="su">km/h</div><div class="slb">Top Speed</div></div>
+          <div class="sc"><div class="sn" id="my-cnt">0</div><div class="su">rides</div><div class="slb">Rides</div></div>
+        </div>
+        <div class="pw"><div class="pla"><span>Season Progress</span><span id="sea-pct">0%</span></div><div class="pt"><div class="pf" id="sea-bar" style="width:0%"></div></div></div>
+      </div>
+      <div class="card"><div class="ct">🏅 Achievements</div><div id="achievements"></div></div>
+      <div class="card"><div class="ct">📈 Recent Rides</div><div id="lb-hist" class="rl"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- MY BIKE -->
+<div class="page" id="page-mybike">
+  <div class="bk-hdr">
+    <div style="font-family:'DM Serif Display',serif;font-style:italic;font-size:1.8rem;color:var(--gp)" id="bh-name">My Motorcycle</div>
+    <div style="font-size:0.7rem;letter-spacing:4px;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-top:4px" id="bh-plate">Tap below to add details</div>
+    <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
+      <span class="badge bnn" id="bh-make">Brand</span>
+      <span class="badge bnn" id="bh-year">Year</span>
+      <span class="badge bnn" id="bh-cc">CC</span>
+      <span class="badge bnn" id="bh-color">Color</span>
+    </div>
+  </div>
+  <div class="doc-grid" id="doc-grid">
+    <div class="doc-card doc-none"><div style="font-size:1.6rem;margin-bottom:10px">📋</div><div style="font-size:0.7rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--mu);margin-bottom:4px">Road Tax</div><div style="font-family:'DM Serif Display',serif;font-size:1.2rem;color:var(--gd)">Not Set</div><div style="font-size:0.72rem;font-weight:700;margin-top:4px;color:var(--mu)">Add date below</div></div>
+    <div class="doc-card doc-none"><div style="font-size:1.6rem;margin-bottom:10px">🛡️</div><div style="font-size:0.7rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--mu);margin-bottom:4px">Insurance</div><div style="font-family:'DM Serif Display',serif;font-size:1.2rem;color:var(--gd)">Not Set</div><div style="font-size:0.72rem;font-weight:700;margin-top:4px;color:var(--mu)">Add date below</div></div>
+    <div class="doc-card doc-none"><div style="font-size:1.6rem;margin-bottom:10px">🔍</div><div style="font-size:0.7rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--mu);margin-bottom:4px">Inspection</div><div style="font-family:'DM Serif Display',serif;font-size:1.2rem;color:var(--gd)">Not Set</div><div style="font-size:0.72rem;font-weight:700;margin-top:4px;color:var(--mu)">Add date below</div></div>
+  </div>
+  <div class="info-box info-sky">
+    <span>ℹ️</span>
+    <div><strong>About MyEG:</strong> MyEG does not offer a public API for third-party apps. Enter your details manually — RideFlow tracks expiry and alerts you 30/14/7 days before. <a href="https://www.myeg.com.sg" target="_blank" style="color:var(--amb);font-weight:700">Renew at MyEG →</a></div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+    <div>
+      <div class="card"><div class="ct">🏍️ Bike Details</div>
+        <div class="fg">
+          <div><label class="fl">Nickname</label><input type="text" id="b-name" placeholder="e.g. My R25"></div>
+          <div><label class="fl">Plate Number</label><input type="text" id="b-plate" placeholder="e.g. SBK1234A"></div>
+          <div><label class="fl">Make / Brand</label><input type="text" id="b-make" placeholder="e.g. Yamaha"></div>
+          <div><label class="fl">Model</label><input type="text" id="b-model" placeholder="e.g. R25"></div>
+          <div><label class="fl">Year</label><input type="number" id="b-year" placeholder="2022"></div>
+          <div><label class="fl">Engine (cc)</label><input type="text" id="b-cc" placeholder="249cc"></div>
+          <div><label class="fl">Colour</label><input type="text" id="b-color" placeholder="Racing Blue"></div>
+          <div><label class="fl">VIN / Chassis</label><input type="text" id="b-vin" placeholder="Optional"></div>
+          <div class="fg1"><button class="btn bp" onclick="saveBike()">💾 Save Details</button></div>
+        </div>
+      </div>
+      <div class="card"><div class="ct">📄 Ownership Info</div>
+        <div class="fg">
+          <div><label class="fl">Registered Owner</label><input type="text" id="b-owner" placeholder="Full name on log card"></div>
+          <div><label class="fl">NRIC / FIN (last 4)</label><input type="text" id="b-nric" placeholder="e.g. 123A"></div>
+          <div><label class="fl">Registration Date</label><input type="date" id="b-regdate"></div>
+          <div><label class="fl">Purchased From</label><input type="text" id="b-dealer" placeholder="e.g. Yamaha Centre Bishan"></div>
+          <div><label class="fl">Purchase Date</label><input type="date" id="b-purchase"></div>
+          <div><label class="fl">Purchase Price (RM/SGD)</label><input type="number" id="b-price" placeholder="e.g. 18000"></div>
+          <div class="fg1"><button class="btn bp" onclick="saveOwnership()">💾 Save Ownership</button></div>
+        </div>
+      </div>
+    </div>
+    <div class="card"><div class="ct">📋 Documents & Expiry</div>
+      <div class="fg">
+        <div><label class="fl">Road Tax Expiry</label><input type="date" id="b-rt"></div>
+        <div><label class="fl">Road Tax Cost</label><input type="number" id="b-rtcost" placeholder="e.g. 90.00"></div>
+        <div><label class="fl">Insurance Expiry</label><input type="date" id="b-ins"></div>
+        <div><label class="fl">Insurance Provider</label><input type="text" id="b-insurer" placeholder="e.g. FWD / AXA"></div>
+        <div><label class="fl">Insurance Premium</label><input type="number" id="b-inscost" placeholder="e.g. 320.00"></div>
+        <div><label class="fl">Policy Number</label><input type="text" id="b-policy" placeholder="Optional"></div>
+        <div><label class="fl">JPJ/LTA Inspection Expiry</label><input type="date" id="b-jpj"></div>
+        <div><label class="fl">Current Odometer (km)</label><input type="number" id="b-odo" placeholder="e.g. 12500"></div>
+        <div class="fg1"><button class="btn bp" onclick="saveDocs()">💾 Save Documents</button></div>
+      </div>
+      <div style="margin-top:16px;padding:12px;background:var(--gbg);border-radius:12px;font-size:0.75rem;color:var(--mu);font-weight:600;line-height:1.6">
+        🔔 RideFlow alerts you 30, 14 and 7 days before any expiry date on your dashboard
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MILEAGE -->
+<div class="page" id="page-mileage">
+  <div class="sg sg4">
+    <div class="sc"><div class="sn" id="m-km">0</div><div class="su">km</div><div class="slb">Distance</div></div>
+    <div class="sc"><div class="sn" id="m-cost">0</div><div class="su">RM</div><div class="slb">Fuel Spent</div></div>
+    <div class="sc"><div class="sn" id="m-eff">—</div><div class="su">km/L</div><div class="slb">Avg Efficiency</div></div>
+    <div class="sc"><div class="sn" id="m-ckm">—</div><div class="su">RM/km</div><div class="slb">Cost per km</div></div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1.4fr;gap:18px">
+    <div class="card"><div class="ct">➕ Log Fuel Stop</div>
+      <div class="fg">
+        <div><label class="fl">Date</label><input type="date" id="f-date"></div>
+        <div><label class="fl">Odometer (km)</label><input type="number" id="f-odo" placeholder="12340"></div>
+        <div><label class="fl">Litres Filled</label><input type="number" id="f-lit" placeholder="5.5" step="0.1"></div>
+        <div><label class="fl">Amount Paid (RM)</label><input type="number" id="f-cost" placeholder="12.00" step="0.01"></div>
+        <div><label class="fl">Fuel Type</label><select id="f-type"><option>RON 95</option><option>RON 97</option><option>RON 100</option><option>Diesel</option></select></div>
+        <div><label class="fl">Station</label><input type="text" id="f-stn" placeholder="SPC Woodlands"></div>
+        <div class="fg1"><button class="btn bp" onclick="addFuel()">💾 Save Log</button></div>
+      </div>
+    </div>
+    <div class="card"><div class="ct">📊 Fuel History</div>
+      <div id="fuel-chart" style="display:flex;gap:4px;align-items:flex-end;height:60px;margin-bottom:10px"></div>
+      <div class="rl" id="fuel-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- SERVICE -->
+<div class="page" id="page-service">
+  <div style="display:grid;grid-template-columns:1fr 1.4fr;gap:18px">
+    <div class="card"><div class="ct">🔧 Log Service</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px" id="svc-chips"></div>
+      <div class="fg">
+        <div><label class="fl">Date</label><input type="date" id="s-date"></div>
+        <div><label class="fl">Odometer (km)</label><input type="number" id="s-odo" placeholder="12340"></div>
+        <div><label class="fl">Cost (RM)</label><input type="number" id="s-cost" placeholder="65.00"></div>
+        <div><label class="fl">Workshop</label><input type="text" id="s-shop" placeholder="Ah Kow Motor"></div>
+        <div><label class="fl">Next Service (km)</label><input type="number" id="s-next" placeholder="14340"></div>
+        <div><label class="fl">Part / Brand</label><input type="text" id="s-brand" placeholder="Motul 10W40"></div>
+        <div class="fg1"><label class="fl">Notes</label><textarea id="s-notes" placeholder="Observations..."></textarea></div>
+        <div class="fg1"><button class="btn bp" onclick="addSvc()">💾 Save Service</button></div>
+      </div>
+    </div>
+    <div class="card"><div class="ct">📋 Service History</div><div class="rl" id="svc-list"></div></div>
+  </div>
+</div>
+
+<!-- JOURNAL -->
+<div class="page" id="page-journal">
+  <div style="display:grid;grid-template-columns:1fr 1.3fr;gap:18px">
+    <div class="card"><div class="ct">✍️ New Entry</div>
+      <div class="fg">
+        <div><label class="fl">Date</label><input type="date" id="j-date"></div>
+        <div><label class="fl">Distance (km)</label><input type="number" id="j-km" placeholder="120"></div>
+        <div class="fg1"><label class="fl">Title</label><input type="text" id="j-title" placeholder="Sunday Highland Loop"></div>
+        <div class="fg1"><label class="fl">Route</label><input type="text" id="j-route" placeholder="KL → Genting → Bentong"></div>
+        <div><label class="fl">Top Speed (km/h)</label><input type="number" id="j-spd" placeholder="140"></div>
+        <div><label class="fl">Avg Speed (km/h)</label><input type="number" id="j-avg" placeholder="80"></div>
+        <div><label class="fl">Rode With</label><input type="text" id="j-with" placeholder="Solo / Ahmad / Group"></div>
+        <div><label class="fl">Mood</label><select id="j-mood"><option>🔥 Epic</option><option>😊 Good</option><option>😐 Okay</option><option>😤 Rough</option></select></div>
+        <div><label class="fl">Weather</label><select id="j-wx"><option>☀️ Sunny</option><option>⛅ Cloudy</option><option>🌧️ Rainy</option><option>⛈️ Stormy</option></select></div>
+        <div class="fg1"><label class="fl">Notes</label><textarea id="j-notes" placeholder="How was the ride?"></textarea></div>
+        <div class="fg1"><button class="btn bp" onclick="addJournal()">💾 Save Entry</button></div>
+      </div>
+    </div>
+    <div class="card"><div class="sh"><div class="st2">📖 Ride Stories</div><span class="badge bgn" id="j-count">0</span></div><div id="j-list"></div></div>
+  </div>
+</div>
+
+<!-- WEATHER -->
+<div class="page" id="page-weather">
+  <div style="text-align:center;padding:60px 20px;background:var(--wh);border-radius:20px;border:1.5px solid var(--bdr)">
+    <div style="font-size:3rem;margin-bottom:16px">🌧️</div>
+    <div style="font-family:'DM Serif Display',serif;font-style:italic;font-size:1.6rem;color:var(--gd);margin-bottom:10px">Live Weather — Singapore</div>
+    <div style="font-size:0.88rem;color:var(--mu);max-width:440px;margin:0 auto 24px;line-height:1.7">Real-time NEA data — rain map with 5-min updates, PSI, UV, 2-hour area forecast, 4-day outlook and live ride alerts. Powered by data.gov.sg</div>
+    <a href="rideflow-weather-sg.html" target="_blank" class="btn bp" style="display:inline-block;text-decoration:none">🌧️ Open Live Weather Map</a>
+  </div>
+</div>
+
+<!-- GEAR -->
+<div class="page" id="page-gear">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+    <div class="card">
+      <div class="sh"><div class="ct" style="margin:0">🪖 Gear Check</div><span class="badge bgn" id="gear-bdg">0/10</span></div>
+      <div class="pw" style="margin-bottom:14px"><div class="pt"><div class="pf" id="gear-bar" style="width:0%"></div></div></div>
+      <div id="gear-list"></div>
+      <div style="display:flex;gap:8px;margin-top:12px"><button class="btn bs bsm" onclick="resetGear()">↺ Reset</button><button class="btn bp bsm" onclick="checkAllGear()">✓ Check All</button></div>
+    </div>
+    <div class="card">
+      <div class="ct">🏍️ Bike Pre-Ride Check</div>
+      <div id="bike-chk"></div>
+      <div style="display:flex;gap:8px;margin-top:12px"><button class="btn bs bsm" onclick="resetBikeChk()">↺ Reset</button><button class="btn bp bsm" onclick="checkAllBike()">✓ Check All</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- SOS -->
+<div class="page" id="page-sos">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+    <div class="card"><div class="ct" style="color:var(--red)">🆘 Emergency Contacts</div>
+      <div class="fg">
+        <div class="fg1"><label class="fl">Name</label><input type="text" id="sos-name" placeholder="e.g. Mum"></div>
+        <div class="fg1"><label class="fl">Phone</label><input type="tel" id="sos-phone" placeholder="012-3456789"></div>
+        <div class="fg1"><label class="fl">Relationship</label><input type="text" id="sos-rel" placeholder="Family / Friend"></div>
+        <div class="fg1"><button class="btn bp" onclick="addSOS()" style="background:var(--red)">➕ Add Contact</button></div>
+      </div>
+      <div id="sos-list" style="margin-top:12px"></div>
+    </div>
+    <div>
+      <div class="card" style="background:linear-gradient(135deg,#fdecea,#fff5f5);border-color:#f5c6c2">
+        <div class="ct" style="color:var(--red)">🚨 Emergency Numbers</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <button class="btn" onclick="window.location.href='tel:995'" style="background:var(--red);color:white;padding:16px;font-size:1rem">📞 995 — Police / Ambulance</button>
+          <button class="btn" onclick="window.location.href='tel:994'" style="background:#e67e22;color:white;padding:14px">🚒 994 — Fire & Rescue</button>
+          <button class="btn" onclick="window.location.href='tel:18002255582'" style="background:#2980b9;color:white;padding:12px">🚗 1800-CALL-LTA</button>
+        </div>
+      </div>
+      <div class="card"><div class="ct">📍 Share My Location</div>
+        <p style="font-size:0.82rem;color:var(--mu);line-height:1.6;margin-bottom:12px">Share your GPS coordinates instantly in an emergency.</p>
+        <button class="btn bp" onclick="shareLoc()">📍 Share Location Now</button>
+        <div id="loc-res" style="margin-top:10px;font-size:0.78rem;color:var(--mu)"></div>
+      </div>
+      <div class="card"><div class="ct">🏥 First Aid Quick Tips</div>
+        <div style="display:flex;flex-direction:column;gap:7px">
+          <div style="padding:9px 13px;background:#fdecea;border-radius:10px;font-size:0.78rem;font-weight:600;border-left:3px solid var(--red)">🪖 Never remove helmet unless airway is blocked</div>
+          <div style="padding:9px 13px;background:#fdecea;border-radius:10px;font-size:0.78rem;font-weight:600;border-left:3px solid var(--red)">😵 Unconscious — do NOT move, call 995, monitor breathing</div>
+          <div style="padding:9px 13px;background:#fdecea;border-radius:10px;font-size:0.78rem;font-weight:600;border-left:3px solid var(--red)">🩸 Heavy bleeding — firm pressure with clean cloth</div>
+          <div style="padding:9px 13px;background:#fdecea;border-radius:10px;font-size:0.78rem;font-weight:600;border-left:3px solid var(--red)">🦴 Suspected fracture — immobilise, do not move</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- content -->
+</main>
+</div>
+
+<!-- SOS MODAL -->
+<div class="mo" id="sos-modal">
+  <div class="md">
+    <div class="md-title" style="color:var(--red)">🆘 Emergency SOS</div>
+    <p style="font-size:0.85rem;color:var(--mu);margin-bottom:16px;line-height:1.6">Alert your contacts. Stay calm.</p>
+    <div id="sos-mc" style="margin-bottom:16px"></div>
+    <div style="display:flex;gap:10px"><button class="btn bd" style="flex:1" onclick="closeMo('sos-modal')">Cancel</button><button class="btn" style="flex:1;background:var(--red);color:white" onclick="sendSOS()">🆘 Send Alert</button></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════ STORAGE ═══════════════
+const S={g:(k,d)=>{try{return JSON.parse(localStorage.getItem('rf2_'+k))??d}catch{return d}},s:(k,v)=>localStorage.setItem('rf2_'+k,JSON.stringify(v))};
+let fuel=S.g('fuel',[]),svcs=S.g('svcs',[]),jrnl=S.g('jrnl',[]);
+let sosC=S.g('sos',[]),gearC=S.g('gear',[]),bikeC=S.g('bikec',[]);
+let bikeD=S.g('biked',{}),bikeDocs=S.g('bikedocs',{}),bikeOwn=S.g('bikeown',{});
+let friends=S.g('friends',[]),rides=S.g('rides',[]);
+let myCode=S.g('code','RF-'+Math.floor(1000+Math.random()*9000));S.s('code',myCode);
+
+// ═══════════════ NAV ═══════════════
+const TITLES={dashboard:'Dashboard',ride:'Live Ride',friends:'Friends & Map',leaderboard:'Leaderboard',mybike:'My Bike',mileage:'Mileage & Fuel',service:'Service Record',journal:'Ride Journal',weather:'Weather SG',gear:'Gear Checklist',sos:'Emergency SOS'};
+function go(p){
+  document.querySelectorAll('.page').forEach(e=>e.classList.remove('active'));
+  document.getElementById('page-'+p)?.classList.add('active');
+  document.querySelectorAll('.nv').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.nv').forEach(b=>{if(b.textContent.trim().toLowerCase().startsWith(TITLES[p].split(' ')[0].toLowerCase()))b.classList.add('active')});
+  document.getElementById('tb-title').textContent=TITLES[p];
+  ({dashboard:renderDash,ride:()=>{initCanvas('rideMap',700,360);drawRideMap()},friends:renderFriends,leaderboard:renderLB,mybike:renderBike,mileage:renderMileage,service:renderSvc,journal:renderJournal,gear:renderGear,sos:renderSOS})[p]?.();
+}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600)}
+function closeMo(id){document.getElementById(id).classList.remove('show')}
+
+// ═══════════════ GPS / LIVE RIDE ═══════════════
+let rideOn=false,watchId=null,rideTimer=null;
+let track=[],rideStart=null,rideSecs=0;
+let curSpd=0,topSpd=0,totalKm=0,lastPos=null,curElev=0;
+const rad=d=>d*Math.PI/180;
+function hav(la1,lo1,la2,lo2){const dL=rad(la2-la1),dO=rad(lo2-lo1);const a=Math.sin(dL/2)**2+Math.cos(rad(la1))*Math.cos(rad(la2))*Math.sin(dO/2)**2;return 6371*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a))}
+
+function toggleRide(){rideOn?stopRide():startRide()}
+function startRide(){
+  if(!navigator.geolocation){toast('⚠️ GPS not supported on this device');return}
+  rideOn=true;track=[];rideStart=new Date();topSpd=0;totalKm=0;rideSecs=0;lastPos=null;
+  document.getElementById('ride-btn').textContent='🛑 Stop Ride';
+  document.getElementById('ride-btn').classList.add('stopping');
+  document.getElementById('ride-status-lbl').textContent='🟢 Recording — GPS Active';
+  document.getElementById('rm-stat').textContent='🟢 Recording';
+  document.getElementById('ride-ind').style.display='inline-flex';
+  document.getElementById('save-card').style.display='none';
+  rideTimer=setInterval(()=>{rideSecs++;updTime()},1000);
+  watchId=navigator.geolocation.watchPosition(pos=>{
+    const{latitude:lat,longitude:lng,speed,altitude,heading,accuracy}=pos.coords;
+    if(speed!=null){curSpd=Math.round(Math.max(0,speed*3.6));if(curSpd>topSpd&&curSpd<280)topSpd=curSpd;document.getElementById('g-spd').textContent=curSpd;document.getElementById('g-top').textContent=topSpd}
+    if(altitude!=null){curElev=Math.round(altitude);document.getElementById('g-elev').textContent=curElev}
+    if(heading!=null&&heading>=0){const dirs=['N','NE','E','SE','S','SW','W','NW'];document.getElementById('g-head').textContent=dirs[Math.round(heading/45)%8]}
+    document.getElementById('g-acc').textContent='±'+Math.round(accuracy||0);
+    if(lastPos){const d=hav(lastPos.lat,lastPos.lng,lat,lng);totalKm+=d;document.getElementById('g-dist').textContent=totalKm.toFixed(2);const avg=rideSecs>0?(totalKm/(rideSecs/3600)).toFixed(0):0;document.getElementById('g-avg').textContent=avg}
+    lastPos={lat,lng};track.push({lat,lng,t:Date.now(),s:curSpd});
+    drawRideMap();
+    document.getElementById('rm-pts').textContent='Track: '+track.length+' pts';
+    document.getElementById('rm-loc').textContent='📍 '+lat.toFixed(4)+', '+lng.toFixed(4);
+  },err=>toast('GPS: '+err.message),{enableHighAccuracy:true,timeout:10000,maximumAge:0});
+}
+function stopRide(){
+  rideOn=false;
+  if(watchId!=null){navigator.geolocation.clearWatch(watchId);watchId=null}
+  if(rideTimer){clearInterval(rideTimer);rideTimer=null}
+  document.getElementById('ride-btn').textContent='🏍️ Start Ride';
+  document.getElementById('ride-btn').classList.remove('stopping');
+  document.getElementById('ride-status-lbl').textContent='Ride ended · '+new Date().toLocaleTimeString();
+  document.getElementById('rm-stat').textContent='⏸ Stopped';
+  document.getElementById('ride-ind').style.display='none';
+  curSpd=0;document.getElementById('g-spd').textContent=0;
+  if(track.length>3)document.getElementById('save-card').style.display='block';
+}
+function updTime(){const h=Math.floor(rideSecs/3600),m=Math.floor((rideSecs%3600)/60),s=rideSecs%60;document.getElementById('g-time').textContent=(h?h+':':'')+(h?String(m).padStart(2,'0'):m)+':'+String(s).padStart(2,'0')}
+function clearTrack(){track=[];drawRideMap();document.getElementById('rm-pts').textContent='Track: 0 pts';toast('Track cleared')}
+
+function saveRide(){
+  const title=document.getElementById('r-title').value||'Ride '+new Date().toLocaleDateString();
+  const entry={id:Date.now(),date:new Date().toISOString().slice(0,10),title,km:+totalKm.toFixed(2),topSpeed:topSpd,duration:rideSecs,avgSpeed:rideSecs>0?+(totalKm/(rideSecs/3600)).toFixed(0):0,elevation:curElev,mood:document.getElementById('r-mood').value,notes:document.getElementById('r-notes').value,route:'GPS Tracked',weather:'—',with:'—'};
+  jrnl.unshift(entry);S.s('jrnl',jrnl);
+  rides.unshift(entry);S.s('rides',rides);
+  toast('✅ Ride saved!');
+  document.getElementById('save-card').style.display='none';
+  document.getElementById('r-title').value='';document.getElementById('r-notes').value='';
+  track=[];drawRideMap();
+}
+
+// ═══════════════ MAP DRAWING ═══════════════
+const SG={minLat:1.22,maxLat:1.48,minLng:103.60,maxLng:104.00};
+function lx(lng,W){return((lng-SG.minLng)/(SG.maxLng-SG.minLng))*W}
+function ly(lat,H){return(1-(lat-SG.minLat)/(SG.maxLat-SG.minLat))*H}
+const SG_POLY=[[103.605,1.26],[103.65,1.27],[103.70,1.255],[103.75,1.258],[103.80,1.268],[103.85,1.285],[103.90,1.295],[103.95,1.298],[104.00,1.285],[104.03,1.27],[104.04,1.26],[104.03,1.245],[104.00,1.235],[103.97,1.228],[103.94,1.225],[103.91,1.228],[103.88,1.24],[103.85,1.248],[103.82,1.245],[103.79,1.238],[103.76,1.232],[103.73,1.235],[103.70,1.24],[103.67,1.245],[103.64,1.248],[103.615,1.252]];
+
+function initCanvas(id,W,H){
+  const c=document.getElementById(id);if(!c)return;
+  const dpr=window.devicePixelRatio||1;
+  c.width=W*dpr;c.height=H*dpr;c.style.width=W+'px';c.style.height=H+'px';
+  c.getContext('2d').scale(dpr,dpr);
+}
+
+function drawBaseMap(ctx,W,H){
+  ctx.fillStyle='#1a2a3a';ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle='rgba(255,255,255,0.04)';ctx.lineWidth=1;
+  for(let i=0;i<=10;i++){ctx.beginPath();ctx.moveTo(i*W/5,0);ctx.lineTo(i*W/5,H);ctx.stroke();ctx.beginPath();ctx.moveTo(0,i*H/5);ctx.lineTo(W*i/5,H);ctx.stroke()}
+  ctx.fillStyle='#2a3d2a';ctx.strokeStyle='rgba(100,160,100,0.3)';ctx.lineWidth=1.5;
+  ctx.beginPath();SG_POLY.forEach(([lo,la],i)=>{i===0?ctx.moveTo(lx(lo,W),ly(la,H)):ctx.lineTo(lx(lo,W),ly(la,H))});ctx.closePath();ctx.fill();ctx.stroke();
+  const regions=[{n:'NORTH',x:.38,y:.14},{n:'CENTRAL',x:.46,y:.44},{n:'EAST',x:.82,y:.56},{n:'WEST',x:.13,y:.62},{n:'NE',x:.72,y:.26}];
+  ctx.fillStyle='rgba(255,255,255,0.14)';ctx.font='bold 9px Nunito,sans-serif';ctx.textAlign='center';
+  regions.forEach(r=>ctx.fillText(r.n,r.x*W,r.y*H));
+  ctx.fillStyle='rgba(255,255,255,0.4)';ctx.font='bold 11px Nunito';ctx.fillText('N',W-18,22);
+}
+
+function drawRideMap(){
+  const canvas=document.getElementById('rideMap');if(!canvas)return;
+  const ctx=canvas.getContext('2d');
+  const dpr=window.devicePixelRatio||1;
+  const W=canvas.width/dpr,H=canvas.height/dpr;
+  drawBaseMap(ctx,W,H);
+  if(track.length>1){
+    ctx.strokeStyle='rgba(200,219,168,0.2)';ctx.lineWidth=10;ctx.lineCap='round';ctx.lineJoin='round';
+    ctx.beginPath();track.forEach((p,i)=>{i===0?ctx.moveTo(lx(p.lng,W),ly(p.lat,H)):ctx.lineTo(lx(p.lng,W),ly(p.lat,H))});ctx.stroke();
+    ctx.strokeStyle='#c8dba8';ctx.lineWidth=3;
+    ctx.beginPath();track.forEach((p,i)=>{i===0?ctx.moveTo(lx(p.lng,W),ly(p.lat,H)):ctx.lineTo(lx(p.lng,W),ly(p.lat,H))});ctx.stroke();
+    const sp=track[0];ctx.fillStyle='#4aaa4a';ctx.beginPath();ctx.arc(lx(sp.lng,W),ly(sp.lat,H),6,0,Math.PI*2);ctx.fill();
+    const ep=track[track.length-1];ctx.fillStyle='#ff6644';ctx.shadowColor='#ff6644';ctx.shadowBlur=14;ctx.beginPath();ctx.arc(lx(ep.lng,W),ly(ep.lat,H),7,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+  }
+}
+
+// ═══════════════ FRIENDS ═══════════════
+let locOn=false;
+document.getElementById('my-code').textContent=myCode;
+const DEMO_FR=[
+  {id:'d1',name:'Ahmad R',emoji:'🐉',status:'riding',lat:1.352,lng:103.820,speed:78,km:45},
+  {id:'d2',name:'Jake M',emoji:'🦅',status:'online',lat:1.310,lng:103.770,speed:0,km:120},
+  {id:'d3',name:'Priya S',emoji:'🦊',status:'offline',lat:1.390,lng:103.860,speed:0,km:0},
+];
+
+function toggleLoc(){
+  locOn=document.getElementById('loc-toggle').checked;
+  document.getElementById('loc-sl').style.background=locOn?'#3a5a3a':'#ccc';
+  document.getElementById('loc-kn').style.left=locOn?'25px':'3px';
+  document.getElementById('loc-sub').textContent=locOn?'✅ Visible to friends only':'Sharing is off';
+  document.getElementById('my-loc').textContent=locOn?'📡 Your location is being shared with friends':'Enable to share live location with friends';
+  toast(locOn?'📡 Location sharing ON':'📴 Location sharing OFF');
+}
+function addFriend(){
+  const n=document.getElementById('fr-name').value.trim();if(!n){toast('Enter a name or code');return}
+  friends.push({id:'u'+Date.now(),name:n,emoji:'👤',status:'offline',lat:1.36+Math.random()*0.05,lng:103.80+Math.random()*0.08,speed:0,km:0});
+  S.s('friends',friends);document.getElementById('fr-name').value='';renderFriends();toast('✅ Friend added!');
+}
+function copyCode(){navigator.clipboard?.writeText(myCode).then(()=>toast('Code copied: '+myCode))}
+
+function drawFriendMap(all){
+  const canvas=document.getElementById('friendMap');if(!canvas)return;
+  const ctx=canvas.getContext('2d');
+  const dpr=window.devicePixelRatio||1;
+  const W=canvas.width/dpr,H=canvas.height/dpr;
+  drawBaseMap(ctx,W,H);
+  all.forEach(f=>{
+    const x=lx(f.lng,W),y=ly(f.lat,H);
+    const col=f.status==='riding'?'#e8a84a':f.status==='online'?'#4aaa4a':'#666';
+    if(f.status==='riding'){ctx.strokeStyle='rgba(232,168,74,0.25)';ctx.lineWidth=18;ctx.beginPath();ctx.arc(x,y,14,0,Math.PI*2);ctx.stroke()}
+    ctx.fillStyle=col;ctx.shadowColor=col;ctx.shadowBlur=8;ctx.beginPath();ctx.arc(x,y,8,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+    ctx.fillStyle='white';ctx.font='11px Nunito';ctx.textAlign='center';ctx.fillText(f.emoji||'👤',x,y-14);
+    ctx.fillStyle='rgba(255,255,255,0.75)';ctx.font='bold 9px Nunito';ctx.fillText(f.name.split(' ')[0],x,y+20);
+    if(f.status==='riding'){ctx.fillStyle=var_amb();ctx.font='bold 8px Nunito';ctx.fillText(f.speed+'km/h',x,y+30)}
+  });
+}
+function var_amb(){return '#e8a84a'}
+
+function renderFriends(){
+  const all=[...DEMO_FR,...friends];
+  initCanvas('friendMap',700,380);
+  drawFriendMap(all);
+  const riding=all.filter(f=>f.status==='riding').length;
+  document.getElementById('fr-online').textContent=riding+' riding now';
+  const grid=document.getElementById('fr-grid');
+  grid.innerHTML=all.map(f=>`<div class="fc-card"><div class="fc-dot ${f.status}"></div><div class="fc-av">${f.emoji||'👤'}</div><div class="fc-nm">${f.name}</div><div class="fc-st">${f.status==='riding'?'🏍️ Riding · '+f.speed+' km/h':f.status==='online'?'🟢 Online':'⚫ Offline'}</div>${f.km>0?`<div style="font-size:0.62rem;color:var(--amb);font-weight:700;margin-top:4px">🛣️ ${f.km} km today</div>`:''}</div>`).join('');
+}
+
+// ═══════════════ LEADERBOARD ═══════════════
+let lbCat='distance';
+const DEMO_LB=[
+  {name:'Ahmad R',emoji:'🐉',distance:1240,topspeed:187,rides:28,elevation:3200,duration:5400,avgspeed:92,fuel:580,streak:12},
+  {name:'Jake M',emoji:'🦅',distance:980,topspeed:210,rides:22,elevation:2100,duration:4200,avgspeed:88,fuel:440,streak:8},
+  {name:'Priya S',emoji:'🦊',distance:760,topspeed:143,rides:18,elevation:1800,duration:3600,avgspeed:75,fuel:380,streak:5},
+  {name:'William',emoji:'🦎',distance:680,topspeed:165,rides:15,elevation:1400,duration:3100,avgspeed:70,fuel:320,streak:4},
+  {name:'Sam',emoji:'🐨',distance:540,topspeed:130,rides:12,elevation:900,duration:2400,avgspeed:65,fuel:260,streak:3},
+];
+const LB_UNITS={distance:'km',topspeed:'km/h',rides:'rides',elevation:'m',duration:'min',avgspeed:'km/h',fuel:'RM',streak:'days'};
+const LB_LABELS={distance:'Distance',topspeed:'Top Speed',rides:'Ride Count',elevation:'Elevation Gain',duration:'Total Ride Time',avgspeed:'Average Speed',fuel:'Fuel Cost',streak:'Ride Streak'};
+
+function lbTab(cat,btn){lbCat=cat;document.querySelectorAll('#lb-tabs .tab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');renderLB()}
+
+function renderLB(){
+  const myKm=rides.reduce((s,r)=>s+(r.km||0),0);
+  const mySpd=Math.max(0,...rides.map(r=>r.topSpeed||0));
+  const myElev=rides.reduce((s,r)=>s+(r.elevation||0),0);
+  const myDur=Math.round(rides.reduce((s,r)=>s+(r.duration||0),0)/60);
+  const myAvg=rides.length?Math.round(rides.reduce((s,r)=>s+(r.avgSpeed||0),0)/rides.length):0;
+  const myFuel=fuel.reduce((s,f)=>s+f.cost,0);
+
+  const lb=[...DEMO_LB,{name:'You',emoji:'🏍️',distance:+myKm.toFixed(0),topspeed:mySpd,rides:rides.length,elevation:myElev,duration:myDur,avgspeed:myAvg,fuel:+myFuel.toFixed(0),streak:0,me:true}];
+  lb.sort((a,b)=>{if(lbCat==='fuel')return a[lbCat]-b[lbCat];return b[lbCat]-a[lbCat]});
+
+  document.getElementById('lb-cat-title').textContent=LB_LABELS[lbCat]+' Leaderboard';
+  const top3=lb.slice(0,3);
+  const podOrder=[1,0,2];
+  document.getElementById('lb-pod').innerHTML=podOrder.map(i=>{const p=top3[i];if(!p)return'';const isFirst=i===0;return`<div class="pod-item">${isFirst?'<div style="font-size:0.5rem;font-weight:800;letter-spacing:1px;background:var(--ambl);color:var(--gd);padding:2px 8px;border-radius:99px;margin-bottom:4px">WINNER</div>':''}<div class="pod-av">${p.emoji}</div><div class="pod-blk p${i+1}">${i+1}</div><div class="pod-nm">${p.name}</div></div>`}).join('');
+
+  document.getElementById('lb-list').innerHTML=lb.map((p,i)=>`<div class="lb-entry${p.me?' me':''}"><div class="lb-rk">${i<3?['🥇','🥈','🥉'][i]:String(i+1).padStart(2,'0')}</div><div class="lb-av" style="background:${p.me?'var(--gbg)':'#f5f5f5'}">${p.emoji}</div><div class="lb-inf"><div class="lb-nm">${p.name}${p.me?' (You)':''}</div><div class="lb-pt">${p[lbCat]} ${LB_UNITS[lbCat]}</div></div><div class="lb-dl ${i<=2?'up':'dn'}">${i<3?'▲':'▼'}</div></div>`).join('');
+
+  document.getElementById('my-km').textContent=myKm.toFixed(0);
+  document.getElementById('my-spd').textContent=mySpd;
+  document.getElementById('my-cnt').textContent=rides.length;
+  const pct=Math.min(100,Math.round(myKm/20));
+  document.getElementById('sea-pct').textContent=pct+'%';
+  document.getElementById('sea-bar').style.width=pct+'%';
+
+  const achs=[];
+  if(myKm>=100)achs.push({i:'🛣️',n:'Century Rider',d:'Logged 100+ km'});
+  if(mySpd>=120)achs.push({i:'⚡',n:'Speed Demon',d:'Top speed 120+ km/h'});
+  if(rides.length>=5)achs.push({i:'🔁',n:'Regular Rider',d:'5+ rides logged'});
+  if(myElev>=1000)achs.push({i:'⛰️',n:'Climber',d:'1000m+ elevation gained'});
+  if(!achs.length)achs.push({i:'🏁',n:'New Rider',d:'Log your first ride!'});
+  document.getElementById('achievements').innerHTML=achs.map(a=>`<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--gbg);border-radius:10px;margin-bottom:8px;border:1px solid var(--bdr)"><span style="font-size:1.3rem">${a.i}</span><div><div style="font-weight:800;font-size:0.82rem">${a.n}</div><div style="font-size:0.68rem;color:var(--mu)">${a.d}</div></div></div>`).join('');
+
+  document.getElementById('lb-hist').innerHTML=rides.slice(0,4).map(r=>`<div class="ri"><div class="ric" style="background:#e8f5e8">🏍️</div><div class="rin"><div class="rit">${r.title}</div><div class="ris">${r.date} · ${r.mood||''}</div></div><div class="rir"><div class="riv">${r.km} km</div><div class="rid">⚡ ${r.topSpeed||0} km/h</div></div></div>`).join('')||'<div class="empty"><span class="ei">🏍️</span><div class="et">No rides yet</div></div>';
+}
+
+// ═══════════════ MY BIKE ═══════════════
+function docCard(icon,label,dateStr,extra){
+  if(!dateStr)return`<div class="doc-card doc-none"><div style="font-size:1.6rem;margin-bottom:10px">${icon}</div><div style="font-size:0.7rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--mu);margin-bottom:4px">${label}</div><div style="font-family:'DM Serif Display',serif;font-size:1.2rem;color:var(--gd)">Not Set</div><div style="font-size:0.72rem;font-weight:700;margin-top:4px;color:var(--mu)">Add date below</div>${extra||''}</div>`;
+  const exp=new Date(dateStr),now=new Date(),diff=Math.ceil((exp-now)/(864e5));
+  let cls='doc-ok',col='var(--gm)',txt='✅ Valid';
+  if(diff<0){cls='doc-exp';col='var(--red)';txt='🚫 EXPIRED '+Math.abs(diff)+' days ago'}
+  else if(diff<=14){cls='doc-exp';col='var(--red)';txt='⚠️ Expires in '+diff+' days!'}
+  else if(diff<=30){cls='doc-warn';col='var(--amb)';txt='⏰ '+diff+' days left'}
+  else txt='✅ '+diff+' days remaining';
+  return`<div class="doc-card ${cls}"><div style="font-size:1.6rem;margin-bottom:10px">${icon}</div><div style="font-size:0.7rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--mu);margin-bottom:4px">${label}</div><div style="font-family:'DM Serif Display',serif;font-size:1.2rem;color:var(--gd)">${new Date(dateStr).toLocaleDateString('en-SG',{day:'numeric',month:'short',year:'numeric'})}</div><div style="font-size:0.72rem;font-weight:700;margin-top:4px;color:${col}">${txt}</div>${extra||''}</div>`;
+}
+
+function saveBike(){
+  bikeD={name:document.getElementById('b-name').value,plate:document.getElementById('b-plate').value,make:document.getElementById('b-make').value,model:document.getElementById('b-model').value,year:document.getElementById('b-year').value,cc:document.getElementById('b-cc').value,color:document.getElementById('b-color').value,vin:document.getElementById('b-vin').value};
+  S.s('biked',bikeD);renderBike();toast('🏍️ Bike details saved!');
+}
+function saveDocs(){
+  bikeDocs={rt:document.getElementById('b-rt').value,rtcost:document.getElementById('b-rtcost').value,ins:document.getElementById('b-ins').value,insurer:document.getElementById('b-insurer').value,inscost:document.getElementById('b-inscost').value,policy:document.getElementById('b-policy').value,jpj:document.getElementById('b-jpj').value,odo:document.getElementById('b-odo').value};
+  S.s('bikedocs',bikeDocs);renderBike();toast('📋 Documents saved! Expiry reminders set.');
+}
+function saveOwnership(){
+  bikeOwn={owner:document.getElementById('b-owner').value,nric:document.getElementById('b-nric').value,regdate:document.getElementById('b-regdate').value,dealer:document.getElementById('b-dealer').value,purchase:document.getElementById('b-purchase').value,price:document.getElementById('b-price').value};
+  S.s('bikeown',bikeOwn);toast('✅ Ownership info saved!');
+}
+
+function renderBike(){
+  document.getElementById('bh-name').textContent=bikeD.name||'My Motorcycle';
+  document.getElementById('bh-plate').textContent=bikeD.plate?'🏍️ '+bikeD.plate+(bikeD.model?' · '+bikeD.make+' '+bikeD.model:''):'Tap below to add details';
+  document.getElementById('bh-make').textContent=bikeD.make||'Brand';
+  document.getElementById('bh-year').textContent=bikeD.year||'Year';
+  document.getElementById('bh-cc').textContent=bikeD.cc||'CC';
+  document.getElementById('bh-color').textContent=bikeD.color||'Color';
+  document.getElementById('doc-grid').innerHTML=
+    docCard('📋','Road Tax',bikeDocs.rt,bikeDocs.rtcost?`<div style="font-size:0.65rem;color:var(--mu);margin-top:4px">RM ${bikeDocs.rtcost}</div>`:'') +
+    docCard('🛡️','Insurance',bikeDocs.ins,bikeDocs.insurer?`<div style="font-size:0.65rem;color:var(--mu);margin-top:4px">${bikeDocs.insurer}${bikeDocs.policy?' · '+bikeDocs.policy:''}</div>`:'') +
+    docCard('🔍','JPJ / LTA Inspection',bikeDocs.jpj,'');
+  ['b-name','b-plate','b-make','b-model','b-year','b-cc','b-color','b-vin'].forEach(f=>{const k=f.replace('b-','');const el=document.getElementById(f);if(el&&bikeD[k])el.value=bikeD[k]});
+  const dm={rt:'b-rt',rtcost:'b-rtcost',ins:'b-ins',insurer:'b-insurer',inscost:'b-inscost',policy:'b-policy',jpj:'b-jpj',odo:'b-odo'};
+  Object.entries(dm).forEach(([k,id])=>{const el=document.getElementById(id);if(el&&bikeDocs[k])el.value=bikeDocs[k]});
+}
+
+// ═══════════════ MILEAGE ═══════════════
+function addFuel(){
+  const date=document.getElementById('f-date').value,odo=+document.getElementById('f-odo').value,cost=+document.getElementById('f-cost').value;
+  if(!date||!odo||!cost){toast('⚠️ Fill date, odometer & cost');return}
+  fuel.unshift({id:Date.now(),date,odo,lit:+document.getElementById('f-lit').value,cost,type:document.getElementById('f-type').value,stn:document.getElementById('f-stn').value});
+  S.s('fuel',fuel);renderMileage();toast('⛽ Saved!');
+  ['f-odo','f-lit','f-cost','f-stn'].forEach(id=>document.getElementById(id).value='');
+}
+function renderMileage(){
+  const tc=fuel.reduce((s,f)=>s+f.cost,0),tl=fuel.reduce((s,f)=>s+(f.lit||0),0);
+  let km=0;if(fuel.length>1){const sr=[...fuel].sort((a,b)=>a.odo-b.odo);km=sr[sr.length-1].odo-sr[0].odo}
+  document.getElementById('m-km').textContent=km||0;
+  document.getElementById('m-cost').textContent=tc.toFixed(2);
+  document.getElementById('m-eff').textContent=tl>0&&km>0?(km/tl).toFixed(1):'—';
+  document.getElementById('m-ckm').textContent=km>0?(tc/km).toFixed(2):'—';
+  const ch=document.getElementById('fuel-chart');
+  const rc=[...fuel].slice(0,12).reverse();
+  ch.innerHTML=rc.length?rc.map(f=>{const mx=Math.max(...rc.map(x=>x.cost));return`<div style="flex:1;display:flex;flex-direction:column;align-items:center"><div style="width:100%;background:var(--gp);border-radius:4px 4px 0 0;height:${Math.max(8,(f.cost/mx)*52)}px"></div><div style="font-size:0.45rem;color:var(--mu);margin-top:3px">${f.date?.slice(5)||''}</div></div>`}).join(''):'';
+  const list=document.getElementById('fuel-list');
+  list.innerHTML=fuel.length?fuel.slice(0,10).map(f=>`<div class="ri"><div class="ric" style="background:#fff3e0">⛽</div><div class="rin"><div class="rit">${f.type} — ${f.stn||'Fuel Stop'}</div><div class="ris">${f.lit||'?'}L · Odo: ${(f.odo||0).toLocaleString()} km · ${f.date||''}</div></div><div class="rir"><div class="riv">RM ${f.cost?.toFixed(2)}</div><button class="btn bd bsm" onclick="delFuel(${f.id})">🗑</button></div></div>`).join(''):'<div class="empty"><span class="ei">⛽</span><div class="et">No logs yet</div></div>';
+}
+function delFuel(id){fuel=fuel.filter(f=>f.id!==id);S.s('fuel',fuel);renderMileage();toast('Deleted')}
+
+// ═══════════════ SERVICE ═══════════════
+const SVC=[{l:'🛢️ Engine Oil',v:'Engine Oil'},{l:'🔄 Oil Filter',v:'Oil Filter'},{l:'🔵 Front Tyre',v:'Front Tyre'},{l:'🔴 Rear Tyre',v:'Rear Tyre'},{l:'⛓️ Chain',v:'Chain & Sprocket'},{l:'🛑 Brakes',v:'Brake Pads'},{l:'💨 Air Filter',v:'Air Filter'},{l:'⚡ Spark Plug',v:'Spark Plug'},{l:'🔋 Battery',v:'Battery'},{l:'💧 Coolant',v:'Coolant'},{l:'⭐ Full Service',v:'Full Service'},{l:'📝 Other',v:'Other'}];
+let selSvc=SVC[0].v;
+function initSvcChips(){document.getElementById('svc-chips').innerHTML=SVC.map((t,i)=>`<div class="btn bs bsm" style="${i===0?'background:var(--gd);color:var(--cream);border-color:var(--gd)':''};cursor:pointer;margin-bottom:4px" onclick="pickSvc(this,'${t.v}')">${t.l}</div>`).join('')}
+function pickSvc(el,v){selSvc=v;document.querySelectorAll('#svc-chips .btn').forEach(b=>{b.style.background='';b.style.color='';b.style.borderColor=''});el.style.background='var(--gd)';el.style.color='var(--cream)';el.style.borderColor='var(--gd)'}
+function addSvc(){
+  const date=document.getElementById('s-date').value,odo=+document.getElementById('s-odo').value;
+  if(!date||!odo){toast('⚠️ Fill date & odometer');return}
+  svcs.unshift({id:Date.now(),type:selSvc,date,odo,cost:+document.getElementById('s-cost').value,shop:document.getElementById('s-shop').value,next:+document.getElementById('s-next').value,brand:document.getElementById('s-brand').value,notes:document.getElementById('s-notes').value});
+  S.s('svcs',svcs);renderSvc();toast('🔧 Saved!');
+  ['s-odo','s-cost','s-shop','s-next','s-brand','s-notes'].forEach(id=>document.getElementById(id).value='');
+}
+function renderSvc(){
+  const list=document.getElementById('svc-list');
+  list.innerHTML=svcs.length?svcs.map(s=>`<div class="ri"><div class="ric" style="background:#e8f5e8">${SVC.find(t=>t.v===s.type)?.l.split(' ')[0]||'🔧'}</div><div class="rin"><div class="rit">${s.type}</div><div class="ris">${s.shop||'Workshop'} · ${(s.odo||0).toLocaleString()} km${s.brand?' · '+s.brand:''}</div>${s.next?`<div class="ris">Next: ${s.next.toLocaleString()} km</div>`:''}</div><div class="rir"><div class="riv">${s.cost?'RM '+s.cost.toFixed(0):'—'}</div><div class="rid">${s.date||''}</div><button class="btn bd bsm" onclick="delSvc(${s.id})" style="margin-top:4px">🗑</button></div></div>`).join(''):'<div class="empty"><span class="ei">🔧</span><div class="et">No records yet</div></div>';
+}
+function delSvc(id){svcs=svcs.filter(s=>s.id!==id);S.s('svcs',svcs);renderSvc();toast('Deleted')}
+
+// ═══════════════ JOURNAL ═══════════════
+function addJournal(){
+  const date=document.getElementById('j-date').value,title=document.getElementById('j-title').value;
+  if(!date||!title){toast('⚠️ Fill date & title');return}
+  const entry={id:Date.now(),date,km:+document.getElementById('j-km').value,title,route:document.getElementById('j-route').value,topSpeed:+document.getElementById('j-spd').value,avgSpeed:+document.getElementById('j-avg').value,with:document.getElementById('j-with').value,mood:document.getElementById('j-mood').value,weather:document.getElementById('j-wx').value,notes:document.getElementById('j-notes').value};
+  jrnl.unshift(entry);S.s('jrnl',jrnl);
+  if(entry.km>0){rides.unshift(entry);S.s('rides',rides)}
+  renderJournal();toast('📖 Saved!');
+  ['j-km','j-title','j-route','j-spd','j-avg','j-with','j-notes'].forEach(id=>document.getElementById(id).value='');
+}
+function renderJournal(){
+  document.getElementById('j-count').textContent=jrnl.length;
+  document.getElementById('j-list').innerHTML=jrnl.length?jrnl.map(j=>`<div style="background:var(--cream);border-radius:14px;padding:16px;border:1.5px solid var(--bdr);border-left:4px solid var(--gm);margin-bottom:10px"><div style="font-size:0.63rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--amb);margin-bottom:4px">${j.date} ${j.mood||''} ${j.weather||''}</div><div style="font-family:'DM Serif Display',serif;font-size:1rem;color:var(--gd);margin-bottom:4px">${j.title}</div>${j.route?`<div style="font-size:0.73rem;color:var(--amb);font-weight:700;margin-bottom:4px">📍 ${j.route}</div>`:''}<div style="font-size:0.8rem;color:var(--mu);line-height:1.6">${j.notes||''}</div><div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">${j.km?`<span class="badge bgn">🛣️ ${j.km} km</span>`:''}${j.topSpeed?`<span class="badge bam">⚡ ${j.topSpeed} km/h</span>`:''}${j.avgSpeed?`<span class="badge bnn">📈 avg ${j.avgSpeed} km/h</span>`:''}${j.with?`<span class="badge bsk">👥 ${j.with}</span>`:''}<button class="btn bd bsm" onclick="delJ(${j.id})">🗑</button></div></div>`).join(''):'<div class="empty"><span class="ei">📖</span><div class="et">Your adventures begin here</div></div>';
+}
+function delJ(id){jrnl=jrnl.filter(j=>j.id!==id);S.s('jrnl',jrnl);renderJournal();toast('Deleted')}
+
+// ═══════════════ GEAR ═══════════════
+const GEAR=[{id:'g1',t:'Full Face Helmet',c:'🪖'},{id:'g2',t:'Visor clean & clear',c:'👁️'},{id:'g3',t:'Riding Jacket (CE rated)',c:'🧥'},{id:'g4',t:'Riding Gloves',c:'🧤'},{id:'g5',t:'Riding Boots',c:'👢'},{id:'g6',t:'Knee Guards / Pants',c:'🦺'},{id:'g7',t:'Back Protector',c:'🛡️'},{id:'g8',t:'Hi-Vis Vest (night)',c:'🌟'},{id:'g9',t:'Phone mounted safely',c:'📱'},{id:'g10',t:'Water & snacks (long rides)',c:'💧'}];
+const BIKECHK=[{id:'b1',t:'Front Tyre Pressure',c:'🔵'},{id:'b2',t:'Rear Tyre Pressure',c:'🔴'},{id:'b3',t:'Tyre Tread OK',c:'🔍'},{id:'b4',t:'Engine Oil Level',c:'🛢️'},{id:'b5',t:'Coolant Level',c:'💧'},{id:'b6',t:'Brake Fluid',c:'🛑'},{id:'b7',t:'Front Brake',c:'🤚'},{id:'b8',t:'Rear Brake',c:'🦶'},{id:'b9',t:'Chain Tension & Lube',c:'⛓️'},{id:'b10',t:'Headlight & Tail Light',c:'💡'},{id:'b11',t:'Turn Signals',c:'🔄'},{id:'b12',t:'Fuel Level',c:'⛽'}];
+function chkItem(id,list,key){const idx=list.indexOf(id);idx>=0?list.splice(idx,1):list.push(id);S.s(key,list);renderGear()}
+function renderGear(){
+  document.getElementById('gear-list').innerHTML=GEAR.map(g=>`<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--gbg);border-radius:10px;cursor:pointer;border:1.5px solid var(--bdr);margin-bottom:6px;opacity:${gearC.includes(g.id)?0.6:1}" onclick="chkItem('${g.id}',gearC,'gear')"><div style="width:20px;height:20px;border-radius:6px;border:2px solid var(--gm);background:${gearC.includes(g.id)?'var(--gm)':'white'};display:flex;align-items:center;justify-content:center;font-size:11px;color:white;flex-shrink:0">${gearC.includes(g.id)?'✓':''}</div><span style="font-size:0.85rem;font-weight:700;${gearC.includes(g.id)?'text-decoration:line-through;color:var(--mu)':''}">${g.c} ${g.t}</span></div>`).join('');
+  const pct=Math.round(gearC.length/GEAR.length*100);
+  document.getElementById('gear-bar').style.width=pct+'%';
+  document.getElementById('gear-bdg').textContent=gearC.length+'/'+GEAR.length;
+  document.getElementById('bike-chk').innerHTML=BIKECHK.map(b=>`<div style="display:flex;align-items:center;gap:10px;padding:9px 13px;background:var(--gbg);border-radius:10px;cursor:pointer;border:1.5px solid var(--bdr);margin-bottom:5px;opacity:${bikeC.includes(b.id)?0.6:1}" onclick="chkItem('${b.id}',bikeC,'bikec')"><div style="width:18px;height:18px;border-radius:5px;border:2px solid var(--gm);background:${bikeC.includes(b.id)?'var(--gm)':'white'};display:flex;align-items:center;justify-content:center;font-size:10px;color:white;flex-shrink:0">${bikeC.includes(b.id)?'✓':''}</div><span style="font-size:0.82rem;font-weight:700;${bikeC.includes(b.id)?'text-decoration:line-through;color:var(--mu)':''}">${b.c} ${b.t}</span></div>`).join('');
+}
+function resetGear(){gearC=[];S.s('gear',[]);renderGear()}
+function checkAllGear(){gearC=GEAR.map(g=>g.id);S.s('gear',gearC);renderGear();toast('✅ All gear checked!')}
+function resetBikeChk(){bikeC=[];S.s('bikec',[]);renderGear()}
+function checkAllBike(){bikeC=BIKECHK.map(b=>b.id);S.s('bikec',bikeC);renderGear();toast('✅ Bike checked!')}
+
+// ═══════════════ SOS ═══════════════
+function addSOS(){
+  const name=document.getElementById('sos-name').value,phone=document.getElementById('sos-phone').value;
+  if(!name||!phone){toast('⚠️ Name & phone required');return}
+  sosC.push({id:Date.now(),name,phone,rel:document.getElementById('sos-rel').value});
+  S.s('sos',sosC);renderSOS();toast('✅ Contact saved!');
+  ['sos-name','sos-phone','sos-rel'].forEach(id=>document.getElementById(id).value='');
+}
+function renderSOS(){
+  document.getElementById('sos-list').innerHTML=sosC.map(c=>`<div style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:#fdecea;border-radius:12px;margin-bottom:8px;border:1px solid #f5c6c2"><div style="font-size:1.3rem">👤</div><div style="flex:1"><div style="font-weight:800;font-size:0.88rem">${c.name}</div><div style="font-size:0.72rem;color:var(--mu)">${c.phone} · ${c.rel||'Contact'}</div></div><button class="btn bsm" onclick="window.location.href='tel:${c.phone}'" style="background:var(--red);color:white">📞</button><button class="btn bd bsm" onclick="delSOS(${c.id})">🗑</button></div>`).join('')||'<div class="empty"><span class="ei">📞</span><div class="et">No contacts yet</div></div>';
+  document.getElementById('sos-mc').innerHTML=sosC.map(c=>`<div style="display:flex;align-items:center;gap:10px;padding:12px;background:#fdecea;border-radius:12px;margin-bottom:8px"><div style="font-size:1.2rem">👤</div><div style="flex:1"><div style="font-weight:800">${c.name}</div><div style="font-size:0.72rem;color:var(--mu)">${c.phone}</div></div><button class="btn bsm" onclick="window.location.href='tel:${c.phone}'" style="background:var(--red);color:white">📞</button></div>`).join('')||'<div style="text-align:center;padding:20px;color:var(--mu)">No emergency contacts saved</div>';
+}
+function delSOS(id){sosC=sosC.filter(c=>c.id!==id);S.s('sos',sosC);renderSOS();toast('Deleted')}
+function openSOS(){document.getElementById('sos-modal').classList.add('show')}
+function sendSOS(){toast('🆘 SOS alert sent to all contacts!');closeMo('sos-modal')}
+function shareLoc(){
+  const res=document.getElementById('loc-res');
+  if(!navigator.geolocation){res.textContent='GPS not available';return}
+  res.textContent='Getting location...';
+  navigator.geolocation.getCurrentPosition(p=>{
+    const url='https://maps.google.com/?q='+p.coords.latitude+','+p.coords.longitude;
+    navigator.clipboard?.writeText('My location: '+url).then(()=>res.textContent='📋 Copied! Share with contacts.');
+    res.textContent='📍 '+p.coords.latitude.toFixed(5)+', '+p.coords.longitude.toFixed(5);
+  },()=>res.textContent='⚠️ Location access denied');
+}
+
+// ═══════════════ DASHBOARD ═══════════════
+function renderDash(){
+  const myKm=rides.reduce((s,r)=>s+(r.km||0),0);
+  const mySpd=Math.max(0,...rides.map(r=>r.topSpeed||0));
+  const tc=fuel.reduce((s,f)=>s+f.cost,0);
+  document.getElementById('ds-km').textContent=myKm.toFixed(0);
+  document.getElementById('ds-rides').textContent=rides.length;
+  document.getElementById('ds-spd').textContent=mySpd;
+  document.getElementById('ds-fuel').textContent=tc.toFixed(0);
+
+  const alerts=[];
+  const lastOil=svcs.find(s=>s.type==='Engine Oil');
+  if(lastOil?.next&&fuel.length){const cur=Math.max(...fuel.map(f=>f.odo));const rem=lastOil.next-cur;if(rem<0)alerts.push({t:'danger',m:'🚨 Engine oil OVERDUE! Service now.'});else if(rem<500)alerts.push({t:'danger',m:`⚠️ Engine oil due in ${rem} km`});else if(rem<1500)alerts.push({t:'warn',m:`🔧 Engine oil due in ${rem} km`})}
+  if(bikeDocs.rt){const d=Math.ceil((new Date(bikeDocs.rt)-new Date())/864e5);if(d<0)alerts.push({t:'danger',m:'🚨 ROAD TAX EXPIRED! Renew at MyEG immediately.'});else if(d<=14)alerts.push({t:'danger',m:`📋 Road tax expires in ${d} days — renew at MyEG`});else if(d<=30)alerts.push({t:'warn',m:`📋 Road tax expires in ${d} days`})}
+  if(bikeDocs.ins){const d=Math.ceil((new Date(bikeDocs.ins)-new Date())/864e5);if(d<0)alerts.push({t:'danger',m:'🚨 INSURANCE EXPIRED! Do not ride until renewed.'});else if(d<=14)alerts.push({t:'danger',m:`🛡️ Insurance expires in ${d} days`});else if(d<=30)alerts.push({t:'warn',m:`🛡️ Insurance expires in ${d} days`})}
+  if(bikeDocs.jpj){const d=Math.ceil((new Date(bikeDocs.jpj)-new Date())/864e5);if(d<0)alerts.push({t:'danger',m:'🚨 JPJ INSPECTION EXPIRED!'});else if(d<=30)alerts.push({t:'warn',m:`🔍 JPJ inspection due in ${d} days`})}
+  document.getElementById('ds-alerts').innerHTML=alerts.map(a=>`<div style="padding:11px 16px;border-radius:12px;margin-bottom:10px;font-size:0.83rem;font-weight:700;background:${a.t==='danger'?'#fdecea':'#fff3cd'};color:${a.t==='danger'?'var(--red)':'var(--amb)'};border:1px solid ${a.t==='danger'?'#f5c6c2':'#f5c842'}">${a.m}</div>`).join('');
+
+  const db=document.getElementById('ds-bike');
+  db.innerHTML=bikeD.name?`<div style="font-family:'DM Serif Display',serif;font-size:1.2rem;color:var(--gd)">${bikeD.name}</div><div style="font-size:0.72rem;color:var(--mu);margin-bottom:10px">${bikeD.plate||'No plate set'} · ${bikeD.make||''} ${bikeD.model||''}</div><div style="display:flex;gap:8px;flex-direction:column">${docCard('📋','Road Tax',bikeDocs.rt).replace('doc-card','').replace(/<div style="font-size:1.6rem/,'<div style="display:none"><div style="font-size:1.6rem')}</div>`:'<div class="empty"><span class="ei">🏍️</span><div class="et">Set up your bike</div><button class="btn bp bsm" onclick="go(\'mybike\')" style="margin-top:8px">Setup →</button></div>';
+
+  const myRank=document.getElementById('ds-rank');
+  myRank.innerHTML=`<div style="text-align:center;padding:10px"><div style="font-family:'DM Serif Display',serif;font-size:2.5rem;color:var(--gd)">#${rides.length>0?3:'-'}</div><div style="font-size:0.72rem;color:var(--mu);font-weight:700;letter-spacing:1px">CREW RANKING</div><div style="margin-top:8px"><span class="badge bgn">🛣️ ${myKm.toFixed(0)} km</span> <span class="badge bam">⚡ ${mySpd} km/h</span></div><button class="btn bp bsm" onclick="go('leaderboard')" style="margin-top:10px">View Leaderboard →</button></div>`;
+
+  const lj=document.getElementById('ds-lastj');
+  if(!jrnl.length){lj.innerHTML='<div class="empty"><span class="ei">📖</span><div class="et">No entries yet</div></div>';return}
+  const j=jrnl[0];
+  lj.innerHTML=`<div style="background:var(--cream);border-radius:12px;padding:14px;border-left:3px solid var(--gm)"><div style="font-size:0.63rem;font-weight:800;letter-spacing:2px;color:var(--amb)">${j.date} ${j.mood||''}</div><div style="font-family:'DM Serif Display',serif;font-size:1rem;color:var(--gd);margin:3px 0">${j.title}</div><div style="font-size:0.78rem;color:var(--mu)">${j.notes||''}</div><div style="display:flex;gap:5px;margin-top:8px">${j.km?`<span class="badge bgn">🛣️ ${j.km} km</span>`:''} ${j.topSpeed?`<span class="badge bam">⚡ ${j.topSpeed} km/h</span>`:''}</div></div>`;
+}
+
+// ═══════════════ INIT ═══════════════
+window.addEventListener('load',()=>{
+  const today=new Date().toISOString().slice(0,10);
+  ['f-date','s-date','j-date'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=today});
+  initCanvas('rideMap',700,360);
+  drawRideMap();
+  initSvcChips();
+  renderDash();
+  renderBike();
+  renderMileage();
+  renderSvc();
+  renderJournal();
+  renderGear();
+  renderSOS();
+  document.getElementById('sos-modal').addEventListener('click',function(e){if(e.target===this)closeMo('sos-modal')});
+  window.addEventListener('beforeunload',e=>{if(rideOn){e.preventDefault();e.returnValue='Ride is active!'}});
+});
+</script>
+</body>
+</html>
