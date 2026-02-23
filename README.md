@@ -1,2 +1,0 @@
-# ryde
-motorbike superapp
